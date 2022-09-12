@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=2.83.0"
+      version = "=3.21.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -15,7 +15,11 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
 
   subscription_id = var.subscription_id
 }
@@ -44,10 +48,6 @@ data "azurerm_log_analytics_workspace" "default" {
   resource_group_name = "DefaultResourceGroup-EUS"
 } 
 
-data "azurerm_network_security_group" "basic" {
-    name                = "basic"
-    resource_group_name = "rg-network-eastus"
-}
 
 resource "azurerm_resource_group" "rg" {
   name     = "rg-${local.gh_repo}-${random_string.unique.result}-${local.loc_for_naming}"
