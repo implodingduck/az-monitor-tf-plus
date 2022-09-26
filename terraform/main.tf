@@ -1142,8 +1142,8 @@ resource "azurerm_dashboard_grafana" "grafana" {
   tags = local.tags
 }
 
-resource "azurerm_role_assignment" "fast_metrics" {
-  scope                = data.azurerm_client_config.current.subscription_id
+resource "azurerm_role_assignment" "reader" {
+  scope                = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
   role_definition_name = "Monitoring Reader"
   principal_id         = azurerm_dashboard_grafana.grafana.identity[0].principal_id
 }
