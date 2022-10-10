@@ -65,6 +65,57 @@ resource "azurerm_application_insights_workbook" "example" {
           }
         },
         "name" : "metric - 1"
+      },
+      {
+        "type" : 9,
+        "content" : {
+          "version" : "KqlParameterItem/1.0",
+          "crossComponentResources" : [
+            "${azurerm_application_insights.app.id}"
+          ],
+          "parameters" : [
+            {
+              "version" : "KqlParameterItem/1.0",
+              "name" : "exception_operation_id",
+              "type" : 2,
+              "query" : "union *\r\n| where itemType == \"exception\"\r\n| distinct operation_Id",
+              "crossComponentResources" : [
+                "${azurerm_application_insights.app.id}"
+              ],
+              "typeSettings" : {
+                "additionalResourceOptions" : [],
+                "showDefault" : false
+              },
+              "timeContext" : {
+                "durationMs" : 86400000
+              },
+              "queryType" : 0,
+              "resourceType" : "microsoft.insights/components",
+              "value" : null
+            }
+          ],
+          "style" : "pills",
+          "queryType" : 0,
+          "resourceType" : "microsoft.insights/components"
+        },
+        "name" : "parameters - 3"
+      },
+      {
+        "type" : 3,
+        "content" : {
+          "version" : "KqlItem/1.0",
+          "query" : "union *\r\n| where operation_Id == \"{exception_operation_id}\"\r\n| order by timestamp desc",
+          "size" : 0,
+          "timeContext" : {
+            "durationMs" : 86400000
+          },
+          "queryType" : 0,
+          "resourceType" : "microsoft.insights/components",
+          "crossComponentResources" : [
+            "${azurerm_application_insights.app.id}"
+          ]
+        },
+        "name" : "query - 2"
       }
     ],
     "isLocked" = false,
