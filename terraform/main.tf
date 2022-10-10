@@ -25,9 +25,9 @@ provider "azurerm" {
 }
 
 locals {
-  func_name = "func${random_string.unique.result}"
+  func_name      = "func${random_string.unique.result}"
   loc_for_naming = lower(replace(var.location, " ", ""))
-  gh_repo = replace(var.gh_repo, "implodingduck/", "")
+  gh_repo        = replace(var.gh_repo, "implodingduck/", "")
   tags = {
     "managed_by" = "terraform"
     "repo"       = local.gh_repo
@@ -46,13 +46,13 @@ data "azurerm_client_config" "current" {}
 data "azurerm_log_analytics_workspace" "default" {
   name                = "DefaultWorkspace-${data.azurerm_client_config.current.subscription_id}-EUS"
   resource_group_name = "DefaultResourceGroup-EUS"
-} 
+}
 
 
 resource "azurerm_resource_group" "rg" {
   name     = "rg-${local.gh_repo}-${random_string.unique.result}-${local.loc_for_naming}"
   location = var.location
-  tags = local.tags
+  tags     = local.tags
 }
 
 resource "azurerm_application_insights" "app" {
@@ -81,9 +81,9 @@ resource "azurerm_service_plan" "asp" {
 }
 
 resource "azurerm_linux_function_app" "func" {
-  name                = local.func_name
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  name                       = local.func_name
+  resource_group_name        = azurerm_resource_group.rg.name
+  location                   = azurerm_resource_group.rg.location
   storage_account_name       = azurerm_storage_account.sa.name
   storage_account_access_key = azurerm_storage_account.sa.primary_access_key
   service_plan_id            = azurerm_service_plan.asp.id
@@ -94,21 +94,21 @@ resource "azurerm_linux_function_app" "func" {
     application_stack {
       node_version = "16"
     }
-    
+
   }
 
   app_settings = {
-    "SCM_DO_BUILD_DURING_DEPLOYMENT"           = "1"
-    "BUILD_FLAGS"                              = "UseExpressBuild"
-    "ENABLE_ORYX_BUILD"                        = "true"
-    "XDG_CACHE_HOME"                           = "/tmp/.cache"
-    "FUNC_TYPE"                                = "USELOCAL"
+    "SCM_DO_BUILD_DURING_DEPLOYMENT" = "1"
+    "BUILD_FLAGS"                    = "UseExpressBuild"
+    "ENABLE_ORYX_BUILD"              = "true"
+    "XDG_CACHE_HOME"                 = "/tmp/.cache"
+    "FUNC_TYPE"                      = "USELOCAL"
   }
 
 }
 
 resource "local_file" "localsettings" {
-    content     = <<-EOT
+  content  = <<-EOT
 {
   "IsEncrypted": false,
   "Values": {
@@ -117,7 +117,7 @@ resource "local_file" "localsettings" {
   }
 }
 EOT
-    filename = "../func/local.settings.json"
+  filename = "../func/local.settings.json"
 }
 
 resource "null_resource" "publish_func" {
@@ -131,17 +131,17 @@ resource "null_resource" "publish_func" {
   provisioner "local-exec" {
     working_dir = "../func"
     command     = "sleep 10 && timeout 10m func azure functionapp publish ${azurerm_linux_function_app.func.name} --build remote"
-    
+
   }
 }
 
 resource "azurerm_monitor_metric_alert" "failures" {
   name                = "failure-${local.func_name}"
   resource_group_name = azurerm_resource_group.rg.name
-  scopes              = [
+  scopes = [
     azurerm_application_insights.app.id
   ]
-  description         = "Use Terraform to create a metric Alert"
+  description = "Use Terraform to create a metric Alert"
 
   criteria {
     metric_namespace = "microsoft.insights/components"
@@ -159,10 +159,10 @@ resource "azurerm_monitor_metric_alert" "failures" {
 }
 
 resource "azurerm_portal_dashboard" "board" {
-  name                = "tf-dashboard-${local.func_name}"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  tags = local.tags
+  name                 = "tf-dashboard-${local.func_name}"
+  resource_group_name  = azurerm_resource_group.rg.name
+  location             = azurerm_resource_group.rg.location
+  tags                 = local.tags
   dashboard_properties = <<DASH
 {
     "lenses": {
