@@ -29,6 +29,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "request_count" {
     operator = "GreaterThan"
     threshold = "5"
     time_aggregation_method = "Count"
+    metric_measure_column = "totalCount"
     query = <<-QUERY
       requests
         | summarize totalCount=sum(itemCount)
