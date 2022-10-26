@@ -80,3 +80,26 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "request_count" {
   severity = 4
   window_duration = "PT10M"
 }
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "otherresultstatus" {
+  name = "otherresultstatus-${local.func_name}"
+  resource_group_name = azurerm_resource_group.rg.name
+  location = azurerm_resource_group.rg.location
+  criteria {
+    operator = "GreaterThan"
+    threshold = "2"
+    time_aggregation_method = "Total"
+    metric_measure_column = "totalCount"
+    query = <<-QUERY
+      requests
+        | where resultCode != "200" 
+        | summarize totalCount=sum(itemCount)
+      QUERY
+  }
+  evaluation_frequency = "PT10M"
+  scopes = [
+    azurerm_application_insights.app.id
+  ]
+  severity = 4
+  window_duration = "PT10M"
+}
