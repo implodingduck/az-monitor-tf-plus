@@ -21,6 +21,54 @@ resource "azurerm_monitor_metric_alert" "failures" {
   }
 }
 
+resource "azurerm_monitor_metric_alert" "avgduration" {
+  name                = "avgduration-${local.func_name}"
+  resource_group_name = azurerm_resource_group.rg.name
+  scopes = [
+    azurerm_application_insights.app.id
+  ]
+  description = "Average Duration in App Insights"
+  window_duration = "PT15M"
+  evaluation_frequency = "PT15M"
+  criteria {
+    metric_namespace = "Azure.ApplicationInsights"
+    metric_name      = "HttpTrigger AvgDurationMs"
+    aggregation      = "Average"
+    operator         = "GreaterThan"
+    threshold        = 150
+
+    dimension {
+      name     = "cloud/roleName"
+      operator = "Include"
+      values   = ["*"]
+    }
+  }
+}
+
+resource "azurerm_monitor_metric_alert" "availability" {
+  name                = "availability-${local.func_name}"
+  resource_group_name = azurerm_resource_group.rg.name
+  scopes = [
+    azurerm_application_insights.app.id
+  ]
+  description = "Average Duration in App Insights"
+  window_duration = "PT15M"
+  evaluation_frequency = "PT15M"
+  criteria {
+    metric_namespace = "Microsoft.Insights/components"
+    metric_name      = "availabilityResults/availabilityPercentage"
+    aggregation      = "Average"
+    operator         = "LessThan"
+    threshold        = 90
+
+    dimension {
+      name     = "cloud/roleName"
+      operator = "Include"
+      values   = ["*"]
+    }
+  }
+}
+
 resource "azurerm_monitor_scheduled_query_rules_alert_v2" "request_count" {
   name = "requestcount-${local.func_name}"
   resource_group_name = azurerm_resource_group.rg.name
