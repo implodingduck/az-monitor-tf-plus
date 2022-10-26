@@ -35,7 +35,7 @@ resource "azurerm_monitor_metric_alert" "avgduration" {
     metric_name      = "HttpTrigger AvgDurationMs"
     aggregation      = "Average"
     operator         = "GreaterThan"
-    threshold        = 150
+    threshold        = 300
 
   }
 }
@@ -65,7 +65,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "request_count" {
   location = azurerm_resource_group.rg.location
   criteria {
     operator = "GreaterThan"
-    threshold = "5"
+    threshold = "10"
     time_aggregation_method = "Total"
     metric_measure_column = "totalCount"
     query = <<-QUERY
