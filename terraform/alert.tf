@@ -37,11 +37,6 @@ resource "azurerm_monitor_metric_alert" "avgduration" {
     operator         = "GreaterThan"
     threshold        = 150
 
-    dimension {
-      name     = "cloud/roleName"
-      operator = "Include"
-      values   = ["*"]
-    }
   }
 }
 
@@ -61,11 +56,6 @@ resource "azurerm_monitor_metric_alert" "availability" {
     operator         = "LessThan"
     threshold        = 90
 
-    dimension {
-      name     = "cloud/roleName"
-      operator = "Include"
-      values   = ["*"]
-    }
   }
 }
 
