@@ -28,8 +28,8 @@ resource "azurerm_monitor_metric_alert" "avgduration" {
     azurerm_application_insights.app.id
   ]
   description = "Average Duration in App Insights"
-  window_duration = "PT15M"
-  evaluation_frequency = "PT15M"
+  window_size = "PT15M"
+  frequency = "PT15M"
   criteria {
     metric_namespace = "Azure.ApplicationInsights"
     metric_name      = "HttpTrigger AvgDurationMs"
@@ -52,8 +52,8 @@ resource "azurerm_monitor_metric_alert" "availability" {
     azurerm_application_insights.app.id
   ]
   description = "Average Duration in App Insights"
-  window_duration = "PT15M"
-  evaluation_frequency = "PT15M"
+  window_size = "PT15M"
+  frequency = "PT15M"
   criteria {
     metric_namespace = "Microsoft.Insights/components"
     metric_name      = "availabilityResults/availabilityPercentage"
