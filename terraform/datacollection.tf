@@ -24,6 +24,16 @@ resource "azurerm_monitor_data_collection_rule" "example" {
     }
   }
 
+  data_flow {
+    streams      = ["Microsoft-InsightsMetrics"]
+    destinations = ["destination-metrics-${random_string.unique.result}"]
+  }
+
+  data_flow {
+    streams      = ["Microsoft-InsightsMetrics", "Microsoft-Syslog", "Microsoft-Perf"]
+    destinations = ["destination-log-${random_string.unique.result}"]
+  }
+
   description = "data collection rule example"
   tags = local.tags
 }
