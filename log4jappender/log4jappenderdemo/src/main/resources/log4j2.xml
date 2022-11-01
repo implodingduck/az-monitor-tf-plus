@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN" monitorInterval="30">
+    
     <Properties>
         <Property name="LOG_PATTERN">
             %d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${hostName} --- [%15.15t] %-40.40c{1.} : TESTING LOG4J %m%n%ex
         </Property>
     </Properties>
-
     <Appenders>
         <Console name="ConsoleAppender" target="SYSTEM_OUT" follow="true">
             <PatternLayout pattern="${LOG_PATTERN}"/>
@@ -24,10 +24,14 @@
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
 
+        <Http name="Http" url="https://localhost:9200/test/log4j/">
+            <JsonLayout properties="true"/>
+        </Http>
         
     </Appenders>
 
     <Loggers>
+        
         <Root level="info">
             <AppenderRef ref="ConsoleAppender" />
             <AppenderRef ref="FileAppender" />
