@@ -113,7 +113,7 @@ resource "azurerm_linux_function_app" "func" {
 
 
 resource "azurerm_role_assignment" "func_mmp" {
-  scope                = data.azurerm_client_config.subscription_id
+  scope                = data.azurerm_client_config.current.subscription_id
   role_definition_name = " Monitoring Metrics Publisher"
   principal_id         = azurerm_linux_function_app.func.identity.0.principal_id
 }
