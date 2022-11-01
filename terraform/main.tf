@@ -103,6 +103,9 @@ resource "azurerm_linux_function_app" "func" {
     "ENABLE_ORYX_BUILD"              = "true"
     "XDG_CACHE_HOME"                 = "/tmp/.cache"
     "FUNC_TYPE"                      = "USELOCAL"
+    "DATA_COLLECTION_ENDPOINT"       = azurerm_monitor_data_collection_endpoint.example.logs_ingestion_endpoint 
+    "DATA_IMMUTABLE_ID"              = ""
+
   }
 
   identity {
@@ -112,11 +115,11 @@ resource "azurerm_linux_function_app" "func" {
 
 
 
-# resource "azurerm_role_assignment" "func_mmp" {
-#   scope                = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
-#   role_definition_name = " Monitoring Metrics Publisher"
-#   principal_id         = azurerm_linux_function_app.func.identity.0.principal_id
-# }
+resource "azurerm_role_assignment" "func_mmp" {
+  scope                = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
+  role_definition_name = " Monitoring Metrics Publisher"
+  principal_id         = azurerm_linux_function_app.func.identity.0.principal_id
+}
 
 resource "local_file" "localsettings" {
   content  = <<-EOT
