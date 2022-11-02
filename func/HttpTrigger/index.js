@@ -15,9 +15,10 @@ module.exports = async function (context, req) {
         const streamName = process.env.DATA_STREAM
         const credential = new DefaultAzureCredential();
         const client = new LogsIngestionClient(logsIngestionEndpoint, credential);
+
         const logs = [
             {
-                "Time": new Date (req.body.instant.epochSecond * 1000 + req.body.instant.nanoOfSecond / 1000000000 ),
+                "Time": new Date (req.body.instant.epochSecond * 1000 + req.body.instant.nanoOfSecond / 1000000 ),
                 "Computer": req.headers["x-client-ip"],
                 "AdditionalContext": req.body
             }
