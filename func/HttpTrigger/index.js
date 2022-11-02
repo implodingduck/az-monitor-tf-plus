@@ -11,29 +11,24 @@ module.exports = async function (context, req) {
     let responseMessage = ""
     let status = 200
     if (req.body && req.body.instant){
-        if (req.headers["x-log4j-key"] && req.headers["x-log4j-key"] == "mykey" ){
-            const logsIngestionEndpoint = process.env.DATA_COLLECTION_ENDPOINT 
-            const ruleId = process.env.DATA_IMMUTABLE_ID
-            const streamName = process.env.DATA_STREAM
-            const credential = new DefaultAzureCredential();
-            const client = new LogsIngestionClient(logsIngestionEndpoint, credential);
+        const logsIngestionEndpoint = process.env.DATA_COLLECTION_ENDPOINT 
+        const ruleId = process.env.DATA_IMMUTABLE_ID
+        const streamName = process.env.DATA_STREAM
+        const credential = new DefaultAzureCredential();
+        const client = new LogsIngestionClient(logsIngestionEndpoint, credential);
 
-            const logs = [
-                {
-                    "Time": new Date (req.body.instant.epochSecond * 1000 + req.body.instant.nanoOfSecond / 1000000 ),
-                    "Computer": req.headers["x-client-ip"],
-                    "AdditionalContext": req.body
-                }
-            ]
-            const result = await client.upload(ruleId, streamName, logs);
-            if (result.status !== "Success") {
-                context.log("Some logs have failed to complete ingestion. Upload status=", result.status);
-                context.log(result)
-                
+        const logs = [
+            {
+                "Time": new Date (req.body.instant.epochSecond * 1000 + req.body.instant.nanoOfSecond / 1000000 ),
+                "Computer": req.headers["x-client-ip"],
+                "AdditionalContext": req.body
             }
-        }else{
-            status = 401
-            responseMessage = "Nope!"
+        ]
+        const result = await client.upload(ruleId, streamName, logs);
+        if (result.status !== "Success") {
+            context.log("Some logs have failed to complete ingestion. Upload status=", result.status);
+            context.log(result)
+            
         }
 
     }else {
