@@ -18,7 +18,7 @@ module.exports = async function (context, req) {
         const logs = [
             {
                 "Time": new Date (req.body.instant.epochSecond * 1000 + req.body.instant.nanoOfSecond / 1000000000 ),
-                "Computer": req.headers["x-computer"],
+                "Computer": req.headers["x-client-ip"],
                 "AdditionalContext": req.body
             }
         ]
