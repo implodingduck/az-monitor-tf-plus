@@ -1,3 +1,5 @@
+# https://learn.microsoft.com/en-us/azure/azure-monitor/logs/tutorial-logs-ingestion-api
+
 resource "azurerm_monitor_data_collection_endpoint" "example" {
   name                          = "mdce-azmonplus${random_string.unique.result}"
   resource_group_name           = azurerm_resource_group.rg.name
@@ -7,6 +9,8 @@ resource "azurerm_monitor_data_collection_endpoint" "example" {
   description                   = "monitor_data_collection_endpoint example"
   tags = local.tags
 }
+
+
 
 resource "azapi_resource" "dcr" {
   type = "Microsoft.Insights/dataCollectionRules@2021-09-01-preview"

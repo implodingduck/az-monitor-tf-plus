@@ -25,6 +25,8 @@ module.exports = async function (context, req) {
         const result = await client.upload(ruleId, streamName, logs);
         if (result.uploadStatus !== "Success") {
             context.log("Some logs have failed to complete ingestion. Upload status=", result.uploadStatus);
+            context.log(result)
+            context.log(JSON.stringify(result))
             for (const errors of result.errors) {
                 context.log(`Error - ${JSON.stringify(errors.responseError)}`);
                 context.log(`Log - ${JSON.stringify(errors.failedLogs)}`);
