@@ -9,25 +9,31 @@ module.exports = async function (context, req) {
     context.log("Body:");
     context.log(req.body);
     let responseMessage = ""
+    let status = 200
     if (req.body && req.body.instant){
-        const logsIngestionEndpoint = process.env.DATA_COLLECTION_ENDPOINT 
-        const ruleId = process.env.DATA_IMMUTABLE_ID
-        const streamName = process.env.DATA_STREAM
-        const credential = new DefaultAzureCredential();
-        const client = new LogsIngestionClient(logsIngestionEndpoint, credential);
+        if (req.headers["x-log4j-key"] && req.headers["x-log4j-key"] == "mykey" ){
+            const logsIngestionEndpoint = process.env.DATA_COLLECTION_ENDPOINT 
+            const ruleId = process.env.DATA_IMMUTABLE_ID
+            const streamName = process.env.DATA_STREAM
+            const credential = new DefaultAzureCredential();
+            const client = new LogsIngestionClient(logsIngestionEndpoint, credential);
 
-        const logs = [
-            {
-                "Time": new Date (req.body.instant.epochSecond * 1000 + req.body.instant.nanoOfSecond / 1000000 ),
-                "Computer": req.headers["x-client-ip"],
-                "AdditionalContext": req.body
+            const logs = [
+                {
+                    "Time": new Date (req.body.instant.epochSecond * 1000 + req.body.instant.nanoOfSecond / 1000000 ),
+                    "Computer": req.headers["x-client-ip"],
+                    "AdditionalContext": req.body
+                }
+            ]
+            const result = await client.upload(ruleId, streamName, logs);
+            if (result.status !== "Success") {
+                context.log("Some logs have failed to complete ingestion. Upload status=", result.status);
+                context.log(result)
+                
             }
-        ]
-        const result = await client.upload(ruleId, streamName, logs);
-        if (result.status !== "Success") {
-            context.log("Some logs have failed to complete ingestion. Upload status=", result.status);
-            context.log(result)
-            
+        }else{
+            status = 401
+            responseMessage = "Nope!"
         }
 
     }else {
@@ -42,7 +48,7 @@ module.exports = async function (context, req) {
     }
 
     context.res = {
-        // status: 200, /* Defaults to 200 */
+        status: status,
         body: responseMessage
     };
 

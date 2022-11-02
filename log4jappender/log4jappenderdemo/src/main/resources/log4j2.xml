@@ -26,7 +26,7 @@
 
         <Http name="Http" url="${env:FUNCTION_URL}">
             <JsonLayout properties="true"/>
-            <Property name="X-Computer" value="${sys:HOSTNAME}" />
+            <Property name="X-Log4j-Key" value="${env:FUNCTION_KEY}" />
         </Http>
         
     </Appenders>
