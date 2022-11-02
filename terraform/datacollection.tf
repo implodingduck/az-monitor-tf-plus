@@ -17,28 +17,6 @@ resource "azapi_resource" "dcr" {
   body = jsonencode({
     properties = {
       dataCollectionEndpointId = azurerm_monitor_data_collection_endpoint.example.id
-      dataFlows = [
-        {
-          destinations = [
-            "Custom-MyTableRawData"
-          ]
-          outputStream = "Custom-MyTable_CL"
-          streams = [
-            "logs-${random_string.unique.result}"
-          ]
-          transformKql = "source | extend jsonContext = parse_json(AdditionalContext) | project TimeGenerated = Time, Computer, AdditionalContext = jsonContext"
-        }
-      ]
-     
-      description = "using az api to create this"
-      destinations = {
-        logAnalytics = [
-          {
-            name = "logs-${random_string.unique.result}"
-            workspaceResourceId = data.azurerm_log_analytics_workspace.default.id
-          }
-        ]
-      }
       streamDeclarations = {
           Custom-MyTableRawData = {
             columns = [
@@ -58,8 +36,31 @@ resource "azapi_resource" "dcr" {
             ]
         }
       }
+       destinations = {
+        logAnalytics = [
+          {
+            name = "logs-${random_string.unique.result}"
+            workspaceResourceId = data.azurerm_log_analytics_workspace.default.id
+          }
+        ]
+      }
+      dataFlows = [
+        {
+          destinations = [
+            "logs-${random_string.unique.result}"
+          ]
+          outputStream = "Custom-MyTable_CL"
+          streams = [
+            "Custom-MyTableRawData"
+          ]
+          transformKql = "source | extend jsonContext = parse_json(AdditionalContext) | project TimeGenerated = Time, Computer, AdditionalContext = jsonContext"
+        }
+      ]
+     
+      description = "using az api to create this"
+     
+      
     }
-    kind = "Linux"
   })
   response_export_values = ["*"]
 }
