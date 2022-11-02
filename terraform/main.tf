@@ -104,7 +104,8 @@ resource "azurerm_linux_function_app" "func" {
     "XDG_CACHE_HOME"                 = "/tmp/.cache"
     "FUNC_TYPE"                      = "USELOCAL"
     "DATA_COLLECTION_ENDPOINT"       = azurerm_monitor_data_collection_endpoint.example.logs_ingestion_endpoint 
-    "DATA_IMMUTABLE_ID"              = ""
+    "DATA_IMMUTABLE_ID"              = jsondecode(azapi_resource.dcr.output).properties.immutableId
+    "DATA_STREAM"                    = "Custom-MyTableRawData"
 
   }
 

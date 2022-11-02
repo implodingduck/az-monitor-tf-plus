@@ -12,10 +12,16 @@ module.exports = async function (context, req) {
     if (req.body && req.body.instant){
         const logsIngestionEndpoint = process.env.DATA_COLLECTION_ENDPOINT 
         const ruleId = process.env.DATA_IMMUTABLE_ID
-        const streamName = "" 
+        const streamName = process.env.DATA_STREAM
         const credential = new DefaultAzureCredential();
         const client = new LogsIngestionClient(logsIngestionEndpoint, credential);
-        const logs = [req.body]
+        const logs = [
+            {
+                "Time": new Date (req.body.instant.epochSecond * 1000 + req.body.instant.nanoOfSecond / 1000000000 ),
+                "Computer": req.headers["x-computer"],
+                "AdditionalContext": req.body
+            }
+        ]
         const result = await client.upload(ruleId, streamName, logs);
         if (result.uploadStatus !== "Success") {
             context.log("Some logs have failed to complete ingestion. Upload status=", result.uploadStatus);

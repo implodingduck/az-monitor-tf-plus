@@ -26,6 +26,7 @@
 
         <Http name="Http" url="${env:FUNCTION_URL}">
             <JsonLayout properties="true"/>
+            <Property name="X-Computer" value="$${hostName}" />
         </Http>
         
     </Appenders>
