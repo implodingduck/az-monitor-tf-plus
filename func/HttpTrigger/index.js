@@ -25,9 +25,10 @@ module.exports = async function (context, req) {
             }
         ]
         const result = await client.upload(ruleId, streamName, logs);
+        context.log(result)
         if (result.status !== "Success") {
             context.log("Some logs have failed to complete ingestion. Upload status=", result.status);
-            context.log(result)
+            
             
         }
 
