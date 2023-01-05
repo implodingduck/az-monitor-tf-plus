@@ -1,0 +1,18 @@
+[
+    { 
+        "Time": "2023-01-05T16:04:49.311Z", 
+        "Computer": "LOCALHOST", 
+        "AdditionalContext": { 
+            "instant": "[Object]", 
+            "thread": "http-nio-8080-exec-8", 
+            "level": "INFO", 
+            "loggerName": "com.implodingduck.logappenderdemo.controllers.HelloController", 
+            "message": "Calling hello...", 
+            "endOfBatch": false, 
+            "loggerFqcn": "org.apache.logging.log4j.spi.AbstractLogger", 
+            "contextMap": {}, 
+            "threadId": 47, 
+            "threadPriority": 5 
+        } 
+    }
+]
