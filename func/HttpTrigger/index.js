@@ -24,6 +24,7 @@ module.exports = async function (context, req) {
                 "AdditionalContext": req.body
             }
         ]
+        context.log(logs)
         const result = await client.upload(ruleId, streamName, logs);
         context.log(result)
         if (result.status !== "Success") {
