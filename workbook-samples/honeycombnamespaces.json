@@ -1,0 +1,306 @@
+{
+    "version": "Notebook/1.0",
+    "items": [
+      {
+        "type": 9,
+        "content": {
+          "version": "KqlParameterItem/1.0",
+          "crossComponentResources": [
+            "{Subscription}"
+          ],
+          "parameters": [
+            {
+              "id": "64f87c0f-eed6-4e3d-b820-996c88ae8a03",
+              "version": "KqlParameterItem/1.0",
+              "name": "timeRange",
+              "label": "Time Range",
+              "type": 4,
+              "isRequired": true,
+              "value": {
+                "durationMs": 1800000
+              },
+              "typeSettings": {
+                "selectableValues": [
+                  {
+                    "durationMs": 300000
+                  },
+                  {
+                    "durationMs": 900000
+                  },
+                  {
+                    "durationMs": 1800000
+                  },
+                  {
+                    "durationMs": 3600000
+                  },
+                  {
+                    "durationMs": 14400000
+                  },
+                  {
+                    "durationMs": 43200000
+                  },
+                  {
+                    "durationMs": 86400000
+                  },
+                  {
+                    "durationMs": 172800000
+                  },
+                  {
+                    "durationMs": 259200000
+                  },
+                  {
+                    "durationMs": 604800000
+                  },
+                  {
+                    "durationMs": 1209600000
+                  },
+                  {
+                    "durationMs": 2592000000
+                  }
+                ]
+              }
+            },
+            {
+              "id": "a3a006f1-e89d-4628-8622-e06915226c05",
+              "version": "KqlParameterItem/1.0",
+              "name": "Subscription",
+              "type": 6,
+              "isRequired": true,
+              "multiSelect": true,
+              "quote": "'",
+              "delimiter": ",",
+              "query": "where type in~ (\r\n'Microsoft.ContainerService/managedClusters', \r\n'Microsoft.Kubernetes/connectedClusters', \r\n'Microsoft.HybridContainerService/provisionedClusters')\r\n| summarize Count = count() by subscriptionId\r\n| order by Count desc\r\n| extend Rank = row_number()\r\n| project value = subscriptionId, label = subscriptionId, selected = Rank == 1",
+              "crossComponentResources": [
+                "value::selected"
+              ],
+              "typeSettings": {
+                "additionalResourceOptions": [
+                  "value::all"
+                ],
+                "showDefault": false
+              },
+              "timeContext": {
+                "durationMs": 14400000
+              },
+              "timeContextFromParameter": "timeRange",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources"
+            },
+            {
+              "id": "1a1c7d2a-dee4-4c66-a179-3fdae9f0154f",
+              "version": "KqlParameterItem/1.0",
+              "name": "ResourceType",
+              "label": "Kubernetes cluster type",
+              "type": 7,
+              "isRequired": true,
+              "query": "where type in~ (\r\n'Microsoft.ContainerService/managedClusters', \r\n'Microsoft.Kubernetes/connectedClusters', \r\n'Microsoft.HybridContainerService/provisionedClusters')\r\n| distinct type",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "value": "microsoft.containerservice/managedclusters",
+              "typeSettings": {
+                "additionalResourceOptions": [
+                  "value::1"
+                ]
+              },
+              "timeContext": {
+                "durationMs": 14400000
+              },
+              "timeContextFromParameter": "timeRange",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources"
+            },
+            {
+              "id": "6920400e-5b98-4cc8-adc8-a0dc242d1685",
+              "version": "KqlParameterItem/1.0",
+              "name": "selectedCluster",
+              "label": "Cluster Name",
+              "type": 5,
+              "isRequired": true,
+              "query": "KubernetesConfigurationResources\r\n| where type =~ 'Microsoft.KubernetesConfiguration/extensions'\r\n| where tolower(id) contains '{ResourceType}'\r\n| extend id = tolower(split(id, '/providers/Microsoft.KubernetesConfiguration')[0])\r\n| extend properties = parse_json(tolower(properties))\r\n| where properties.extensiontype in ('microsoft.azuremonitor.containers')\r\n| project id, name,  workspaceResourceId = tostring(properties.configurationsettings.loganalyticsworkspaceresourceid)\r\n| where isnotempty(workspaceResourceId)\r\n| order by name asc\r\n| extend Rank = row_number()\r\n| project value = id, label = id, selected = Rank <= 5\r\n| union (\r\nresources\r\n| where type =~ '{ResourceType}'\r\n| project id, name,  workspaceResourceId = parse_json(tolower(properties)).addonprofiles.omsagent.config.loganalyticsworkspaceresourceid\r\n| where isnotempty(workspaceResourceId)\r\n| order by name asc\r\n| extend Rank = row_number()\r\n| project value = id, label = id, selected = Rank <= 5\r\n)",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "typeSettings": {
+                "additionalResourceOptions": [],
+                "showDefault": false
+              },
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "timeRange",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources"
+            },
+            {
+              "id": "61deb8e1-b47a-4dd1-83be-c46cb077648f",
+              "version": "KqlParameterItem/1.0",
+              "name": "ResourceName",
+              "type": 1,
+              "isRequired": true,
+              "isHiddenWhenLocked": true,
+              "criteriaData": [
+                {
+                  "criteriaContext": {
+                    "operator": "Default",
+                    "rightValType": "param",
+                    "resultValType": "static",
+                    "resultVal": "Kubernetes Service"
+                  }
+                }
+              ]
+            }
+          ],
+          "style": "above",
+          "queryType": 1,
+          "resourceType": "microsoft.resourcegraph/resources"
+        },
+        "name": "cluster parameter"
+      },
+      {
+        "type": 12,
+        "content": {
+          "version": "NotebookGroup/1.0",
+          "groupType": "template",
+          "loadFromTemplateId": "community-Workbooks/Common/noSubscriptions",
+          "items": []
+        },
+        "conditionalVisibility": {
+          "parameterName": "Subscription",
+          "comparison": "isEqualTo"
+        },
+        "name": "No subscriptions group"
+      },
+      {
+        "type": 1,
+        "content": {
+          "json": "# Namespaces"
+        },
+        "name": "text - 3"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "KubePodInventory \r\n| summarize arg_max(TimeGenerated, PodStatus) by ClusterId, Namespace, Name\r\n| summarize RunningCount=countif(PodStatus==\"Running\"), ErrorCount=countif(PodStatus==\"Pending\"), TotalPods=count() by Namespace, ClusterId\r\n| extend linkurl = strcat(\"https://portal.azure.com/#blade/AppInsightsExtension/UsageNotebookBlade/ComponentId/Azure%20Monitor/ConfigurationId/%2Fsubscriptions%2Fbf77b955-0949-4958-be12-5c6d0d1172c9%2Fresourcegroups%2Frg-quackers-bank-l6ht6vt8-eastus%2Fproviders%2Fmicrosoft.insights%2Fworkbooks%2Fe90848b5-992a-4256-9a64-a8a9514990fc/Type/workbook/WorkbookTemplateName/honeycombpods/NotebookParams/%7B%22namespace%22%3A%20%22\", Namespace, \"%22%7D\"),cluster = \"{selectedCluster}\"",
+          "size": 2,
+          "timeContextFromParameter": "timeRange",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "crossComponentResources": [
+            "/subscriptions/bf77b955-0949-4958-be12-5c6d0d1172c9/resourceGroups/DefaultResourceGroup-EUS/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-bf77b955-0949-4958-be12-5c6d0d1172c9-EUS"
+          ],
+          "visualization": "graph",
+          "graphSettings": {
+            "type": 2,
+            "topContent": {
+              "formatter": 1
+            },
+            "centerContent": {
+              "columnMatch": "Namespace",
+              "formatter": 1,
+              "formatOptions": {
+                "linkColumn": "linkurl",
+                "linkTarget": "Url",
+                "linkIsContextBlade": false
+              }
+            },
+            "bottomContent": {
+              "columnMatch": "ErrorCount",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": ">",
+                    "thresholdValue": "0",
+                    "representation": "3",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "Blank",
+                    "text": ""
+                  }
+                ]
+              }
+            },
+            "nodeIdField": "Namespace",
+            "graphOrientation": 3,
+            "showOrientationToggles": false,
+            "nodeSize": null,
+            "staticNodeSize": 100,
+            "colorSettings": {
+              "nodeColorField": "ErrorCount",
+              "type": 3,
+              "thresholdsGrid": [
+                {
+                  "operator": "==",
+                  "thresholdValue": "0",
+                  "representation": "green"
+                },
+                {
+                  "operator": ">",
+                  "thresholdValue": "0",
+                  "representation": "yellow"
+                },
+                {
+                  "operator": "Default",
+                  "thresholdValue": null,
+                  "representation": "lightBlue"
+                }
+              ]
+            },
+            "hivesMargin": 5,
+            "edgeColorSettings": null
+          }
+        },
+        "name": "query - 5"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "KubePodInventory \r\n| distinct Name, Namespace, PodStatus, ClusterId\r\n| summarize count() by Namespace, PodStatus, ClusterId ",
+          "size": 0,
+          "timeContextFromParameter": "timeRange",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "crossComponentResources": [
+            "/subscriptions/bf77b955-0949-4958-be12-5c6d0d1172c9/resourceGroups/DefaultResourceGroup-EUS/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-bf77b955-0949-4958-be12-5c6d0d1172c9-EUS"
+          ],
+          "visualization": "barchart",
+          "chartSettings": {
+            "xAxis": "Namespace",
+            "yAxis": [
+              "count_"
+            ],
+            "group": "PodStatus",
+            "createOtherGroup": null,
+            "showLegend": true
+          },
+          "mapSettings": {
+            "locInfo": "AzureResource",
+            "sizeSettings": "count_",
+            "sizeAggregation": "Sum",
+            "legendMetric": "count_",
+            "legendAggregation": "Sum",
+            "itemColorSettings": {
+              "type": "heatmap",
+              "colorAggregation": "Sum",
+              "nodeColorField": "count_",
+              "heatmapPalette": "greenRed"
+            },
+            "locInfoColumn": "ClusterId"
+          }
+        },
+        "name": "query - 4"
+      }
+    ],
+    "fallbackResourceIds": [
+      "azure monitor"
+    ],
+    "fromTemplateId": "community-Workbooks/MultiCluster/Multi Cluster Overview",
+    "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+  }

@@ -1,0 +1,300 @@
+{
+    "version": "Notebook/1.0",
+    "items": [
+      {
+        "type": 9,
+        "content": {
+          "version": "KqlParameterItem/1.0",
+          "crossComponentResources": [
+            "/subscriptions/bf77b955-0949-4958-be12-5c6d0d1172c9/resourceGroups/DefaultResourceGroup-EUS/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-bf77b955-0949-4958-be12-5c6d0d1172c9-EUS"
+          ],
+          "parameters": [
+            {
+              "id": "64f87c0f-eed6-4e3d-b820-996c88ae8a03",
+              "version": "KqlParameterItem/1.0",
+              "name": "timeRange",
+              "label": "Time Range",
+              "type": 4,
+              "isRequired": true,
+              "value": {
+                "durationMs": 1800000
+              },
+              "typeSettings": {
+                "selectableValues": [
+                  {
+                    "durationMs": 300000
+                  },
+                  {
+                    "durationMs": 900000
+                  },
+                  {
+                    "durationMs": 1800000
+                  },
+                  {
+                    "durationMs": 3600000
+                  },
+                  {
+                    "durationMs": 14400000
+                  },
+                  {
+                    "durationMs": 43200000
+                  },
+                  {
+                    "durationMs": 86400000
+                  },
+                  {
+                    "durationMs": 172800000
+                  },
+                  {
+                    "durationMs": 259200000
+                  },
+                  {
+                    "durationMs": 604800000
+                  },
+                  {
+                    "durationMs": 1209600000
+                  },
+                  {
+                    "durationMs": 2592000000
+                  }
+                ]
+              }
+            },
+            {
+              "id": "a3a006f1-e89d-4628-8622-e06915226c05",
+              "version": "KqlParameterItem/1.0",
+              "name": "Subscription",
+              "type": 6,
+              "isRequired": true,
+              "multiSelect": true,
+              "quote": "'",
+              "delimiter": ",",
+              "query": "where type in~ (\r\n'Microsoft.ContainerService/managedClusters', \r\n'Microsoft.Kubernetes/connectedClusters', \r\n'Microsoft.HybridContainerService/provisionedClusters')\r\n| summarize Count = count() by subscriptionId\r\n| order by Count desc\r\n| extend Rank = row_number()\r\n| project value = subscriptionId, label = subscriptionId, selected = Rank == 1",
+              "crossComponentResources": [
+                "value::selected"
+              ],
+              "typeSettings": {
+                "additionalResourceOptions": [
+                  "value::all"
+                ],
+                "showDefault": false
+              },
+              "timeContext": {
+                "durationMs": 14400000
+              },
+              "timeContextFromParameter": "timeRange",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "value": [
+                "/subscriptions/bf77b955-0949-4958-be12-5c6d0d1172c9"
+              ]
+            },
+            {
+              "id": "1a1c7d2a-dee4-4c66-a179-3fdae9f0154f",
+              "version": "KqlParameterItem/1.0",
+              "name": "ResourceType",
+              "label": "Kubernetes cluster type",
+              "type": 7,
+              "isRequired": true,
+              "query": "where type in~ (\r\n'Microsoft.ContainerService/managedClusters', \r\n'Microsoft.Kubernetes/connectedClusters', \r\n'Microsoft.HybridContainerService/provisionedClusters')\r\n| distinct type",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "value": "microsoft.containerservice/managedclusters",
+              "typeSettings": {
+                "additionalResourceOptions": [
+                  "value::1"
+                ]
+              },
+              "timeContext": {
+                "durationMs": 14400000
+              },
+              "timeContextFromParameter": "timeRange",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources"
+            },
+            {
+              "id": "6920400e-5b98-4cc8-adc8-a0dc242d1685",
+              "version": "KqlParameterItem/1.0",
+              "name": "selectedCluster",
+              "label": "Cluster Name",
+              "type": 5,
+              "isRequired": true,
+              "multiSelect": true,
+              "quote": "'",
+              "delimiter": ",",
+              "query": "KubernetesConfigurationResources\r\n| where type =~ 'Microsoft.KubernetesConfiguration/extensions'\r\n| where tolower(id) contains '{ResourceType}'\r\n| extend id = tolower(split(id, '/providers/Microsoft.KubernetesConfiguration')[0])\r\n| extend properties = parse_json(tolower(properties))\r\n| where properties.extensiontype in ('microsoft.azuremonitor.containers')\r\n| project id, name,  workspaceResourceId = tostring(properties.configurationsettings.loganalyticsworkspaceresourceid)\r\n| where isnotempty(workspaceResourceId)\r\n| order by name asc\r\n| extend Rank = row_number()\r\n| project value = id, label = id, selected = Rank <= 5\r\n| union (\r\nresources\r\n| where type =~ '{ResourceType}'\r\n| project id, name,  workspaceResourceId = parse_json(tolower(properties)).addonprofiles.omsagent.config.loganalyticsworkspaceresourceid\r\n| where isnotempty(workspaceResourceId)\r\n| order by name asc\r\n| extend Rank = row_number()\r\n| project value = id, label = id, selected = Rank <= 5\r\n)",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "typeSettings": {
+                "additionalResourceOptions": [],
+                "showDefault": false
+              },
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "timeRange",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources"
+            },
+            {
+              "id": "61deb8e1-b47a-4dd1-83be-c46cb077648f",
+              "version": "KqlParameterItem/1.0",
+              "name": "ResourceName",
+              "type": 1,
+              "isRequired": true,
+              "isHiddenWhenLocked": true,
+              "criteriaData": [
+                {
+                  "criteriaContext": {
+                    "operator": "Default",
+                    "rightValType": "param",
+                    "resultValType": "static",
+                    "resultVal": "Kubernetes Service"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "0c9157f0-e8d5-4c77-b146-d91b3aad32d3",
+              "version": "KqlParameterItem/1.0",
+              "name": "namespace",
+              "label": "Namespace",
+              "type": 1,
+              "isRequired": true,
+              "value": "default"
+            },
+            {
+              "id": "bbf84f30-29ea-4c5f-aab6-add063928d4e",
+              "version": "KqlParameterItem/1.0",
+              "name": "pod",
+              "label": "Pod",
+              "type": 2,
+              "multiSelect": true,
+              "quote": "'",
+              "delimiter": ",",
+              "query": "KubePodInventory\r\n| where ClusterId == {selectedCluster} and Namespace == \"{namespace}\" and ContainerStatus != \"terminated\" and TimeGenerated {timeRange}\r\n| distinct Name",
+              "crossComponentResources": [
+                "/subscriptions/bf77b955-0949-4958-be12-5c6d0d1172c9/resourceGroups/DefaultResourceGroup-EUS/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-bf77b955-0949-4958-be12-5c6d0d1172c9-EUS"
+              ],
+              "typeSettings": {
+                "additionalResourceOptions": [],
+                "showDefault": false
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "value": [
+                "aks-helloworld-one-54d7769f98-jcxx4"
+              ]
+            }
+          ],
+          "style": "above",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces"
+        },
+        "name": "cluster parameter"
+      },
+      {
+        "type": 1,
+        "content": {
+          "json": "# Namespace: {namespace}\r\n## Pod Details:\r\n{pod}"
+        },
+        "name": "text - 1"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let trendBinSize = 1m;\r\nlet maxResultCount = 10000;\r\nlet metricUsageCounterName = 'memoryRssBytes';\r\nlet metricLimitCounterName = 'memoryLimitBytes';\r\nlet endDateTime = now();\r\nlet KubePodInventoryTable = KubePodInventory\r\n| where TimeGenerated {timeRange}       \r\n| where isnotempty(ClusterName)\r\n| where isnotempty(Namespace)\r\n| where isnotempty(Computer)\r\n| project TimeGenerated, ClusterId, ClusterName, Namespace, ServiceName,            ControllerName, Node = Computer, Pod = Name,            ContainerInstance = ContainerName,            ContainerID,             ReadySinceNow = format_timespan(endDateTime - ContainerCreationTimeStamp , 'ddd.hh:mm:ss.fff'),             Restarts = ContainerRestartCount, Status = ContainerStatus,            ContainerStatusReason = columnifexists('ContainerStatusReason', ''),            ControllerKind = ControllerKind, PodStatus;            let startRestart = KubePodInventoryTable            \r\n| summarize arg_min(TimeGenerated, *) by Node, ContainerInstance            \r\n| where ClusterId =~ {selectedCluster}                                                                       \r\n| project Node, ContainerInstance, InstanceName = strcat(ClusterId, '/', ContainerInstance), StartRestart = Restarts;            let IdentityTable =  KubePodInventoryTable            | summarize arg_max(TimeGenerated, *) by Node, ContainerInstance           \r\n | where ClusterId =~ {selectedCluster}                                                                        \r\n | project ClusterName, Namespace, ServiceName, ControllerName, Node, Pod, ContainerInstance,                    InstanceName = strcat(ClusterId, '/', ContainerInstance), ContainerID, ReadySinceNow, Restarts,                    Status = iff(Status =~ 'running', 0, iff(Status=~'waiting', 1, iff(Status =~'terminated', 2, 3))),                    ContainerStatusReason,                    ControllerKind, Containers = 1, ContainerName = tostring(split(ContainerInstance, '/')[1]), PodStatus,                    LastPodInventoryTimeGenerated = TimeGenerated, ClusterId;        let CachedIdentityTable = IdentityTable;        let FilteredPerfTable = Perf        \r\n | where TimeGenerated {timeRange}\r\n | where ObjectName == 'K8SContainer'        \r\n | where InstanceName startswith {selectedCluster}\r\n | project Node = Computer, TimeGenerated, CounterName, CounterValue, InstanceName        ;        let CachedFilteredPerfTable = FilteredPerfTable;        let LimitsTable = CachedFilteredPerfTable        \r\n | where CounterName =~ metricLimitCounterName        \r\n | summarize arg_max(TimeGenerated, *) by Node, InstanceName        \r\n | project Node, InstanceName,            LimitsValue = iff(CounterName =~ 'cpuLimitNanoCores', CounterValue/1000000, CounterValue),            TimeGenerated;        let MetaDataTable = CachedIdentityTable        \r\n | join kind=leftouter (                LimitsTable            ) on Node, InstanceName             \r\n | join kind= leftouter ( startRestart ) on Node, InstanceName            \r\n | project ClusterName, Namespace, ServiceName, ControllerName, Node, Pod, InstanceName,                        ContainerID, ReadySinceNow, Restarts, LimitsValue, Status,                        ContainerStatusReason = columnifexists('ContainerStatusReason', ''), ControllerKind, Containers,                        ContainerName, ContainerInstance, StartRestart, PodStatus, LastPodInventoryTimeGenerated, ClusterId;            let UsagePerfTable = CachedFilteredPerfTable            \r\n | where CounterName =~ metricUsageCounterName            \r\n | project TimeGenerated, Node, InstanceName,            CounterValue = iff(CounterName =~ 'cpuUsageNanoCores', CounterValue/1000000, CounterValue);                let LastRestartPerfTable = CachedFilteredPerfTable                \r\n | where CounterName =~ 'restartTimeEpoch'                \r\n | summarize arg_max(TimeGenerated, *) by Node, InstanceName                \r\n | project Node, InstanceName, UpTime = CounterValue,                LastReported = TimeGenerated;            let AggregationTable = UsagePerfTable            \r\n | summarize  Aggregation = percentile(CounterValue, 95) by Node, InstanceName            \r\n | project Node, InstanceName, Aggregation;            let TrendTable = UsagePerfTable            \r\n | summarize TrendAggregation = percentile(CounterValue, 95)                by bin(TimeGenerated, trendBinSize), Node, InstanceName            \r\n | project TrendTimeGenerated = TimeGenerated, Node, InstanceName , TrendAggregation            \r\n | summarize TrendList = makelist(pack(\"timestamp\", TrendTimeGenerated, \"value\", TrendAggregation)) by Node, InstanceName;            let containerFinalTable = MetaDataTable            \r\n | join kind= leftouter( AggregationTable ) on Node, InstanceName            \r\n | join kind = leftouter (LastRestartPerfTable) on Node, InstanceName            \r\n | order by Aggregation desc, ContainerName            \r\n | join kind =  leftouter ( TrendTable) on Node, InstanceName                        \r\n | extend ContainerIdentity = strcat(ContainerName, '|', Pod)                        \r\n | project ContainerIdentity, Pod, Status,            ContainerStatusReason = columnifexists('ContainerStatusReason', ''),            Aggregation, Node, Restarts, ReadySinceNow,  TrendList = iif(isempty(TrendList), parse_json('[]'), TrendList),            LimitsValue, ControllerName, ControllerKind, ContainerID, Containers,            UpTimeNow = datetime_diff('Millisecond', endDateTime, datetime_add('second', toint(UpTime), make_datetime(1970,1,1))),            ContainerInstance, StartRestart, LastReportedDelta = datetime_diff('Millisecond', endDateTime, LastReported),            PodStatus, InstanceName, Namespace, LastPodInventoryTimeGenerated, ClusterId;containerFinalTable \r\n | where Namespace == \"{namespace}\"\r\n | where Pod has_any ({pod})\r\n | limit 200",
+          "size": 4,
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "crossComponentResources": [
+            "/subscriptions/bf77b955-0949-4958-be12-5c6d0d1172c9/resourceGroups/DefaultResourceGroup-EUS/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-bf77b955-0949-4958-be12-5c6d0d1172c9-EUS"
+          ]
+        },
+        "name": "query - 2"
+      },
+      {
+        "type": 1,
+        "content": {
+          "json": "# CPU"
+        },
+        "name": "text - 5"
+      },
+      {
+        "type": 10,
+        "content": {
+          "chartId": "workbook3af9e323-e4a2-410a-81da-a455aaccc894",
+          "version": "MetricsItem/2.0",
+          "size": 0,
+          "chartType": 2,
+          "resourceType": "microsoft.containerservice/managedclusters",
+          "metricScope": 0,
+          "resourceParameter": "selectedCluster",
+          "resourceIds": [
+            "{selectedCluster}"
+          ],
+          "timeContextFromParameter": "timeRange",
+          "timeContext": {
+            "durationMs": 1800000
+          },
+          "metrics": [
+            {
+              "namespace": "microsoft.containerservice/managedclusters",
+              "metric": "microsoft.containerservice/managedclusters-Nodes (PREVIEW)-node_cpu_usage_percentage",
+              "aggregation": 4,
+              "splitBy": null
+            }
+          ],
+          "gridSettings": {
+            "rowLimit": 10000
+          }
+        },
+        "name": "metric - 3"
+      },
+      {
+        "type": 1,
+        "content": {
+          "json": "# Memory"
+        },
+        "name": "text - 6"
+      },
+      {
+        "type": 10,
+        "content": {
+          "chartId": "workbook25100d4c-d33b-4ff8-a4e3-1af3f2efba6e",
+          "version": "MetricsItem/2.0",
+          "size": 0,
+          "chartType": 2,
+          "resourceType": "microsoft.containerservice/managedclusters",
+          "metricScope": 0,
+          "resourceParameter": "selectedCluster",
+          "resourceIds": [
+            "{selectedCluster}"
+          ],
+          "timeContextFromParameter": "timeRange",
+          "timeContext": {
+            "durationMs": 1800000
+          },
+          "metrics": [
+            {
+              "namespace": "microsoft.containerservice/managedclusters",
+              "metric": "microsoft.containerservice/managedclusters-Nodes (PREVIEW)-node_memory_rss_percentage",
+              "aggregation": 4,
+              "splitBy": null
+            }
+          ],
+          "gridSettings": {
+            "rowLimit": 10000
+          }
+        },
+        "name": "metric - 4"
+      }
+    ],
+    "fallbackResourceIds": [
+      "azure monitor"
+    ],
+    "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+  }

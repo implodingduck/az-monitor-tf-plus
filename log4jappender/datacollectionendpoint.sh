@@ -8,7 +8,7 @@ ACCESS_TOKEN=$(curl -s -X POST -d "client_id=$APP_CLIENT_ID&scope=https%3A%2F%2F
 #echo $ACCESS_TOKEN
 # 2009-06-15T13:45:30.0000000Z
 CURRENT_TIME=$(date +"%Y-%m-%dT%T.000Z")
-JSON_BODY="[{\"Time\": \"$CURRENT_TIME\",\"Computer\": \"Computer1\",\"AdditionalContext\": { \"InstanceName\": \"user1\", \"TimeZone\": \"Pacific Time\", \"Level\": 4, \"CounterName\": \"AppMetric1\",\"CounterValue\": 15.3 }}]"
+JSON_BODY="[{\"Time\": \"$CURRENT_TIME\",\"Computer\": \"Computer2\",\"AdditionalContext\": { \"InstanceName\": \"user1\", \"TimeZone\": \"Pacific Time\", \"Level\": 4, \"CounterName\": \"AppMetric1\",\"CounterValue\": 15.3 }}]"
 echo $JSON_BODY
 echo $JSON_BODY | gzip > body.gz
 
